@@ -1,0 +1,24 @@
+{
+  "name": "react-relation-graph",
+  "version": "0.0.1",
+  "description": "React Relation Graph",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/banyudu/react-relation-graph.git"
+  },
+  "keywords": [
+    "relation",
+    "react",
+    "graph"
+  ],
+  "author": "Yudu Ban <banyudu@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/banyudu/react-relation-graph/issues"
+  },
+  "homepage": "https://github.com/banyudu/react-relation-graph#readme"
+}

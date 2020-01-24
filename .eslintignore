@@ -1,0 +1,4 @@
+packages/**/node_modules/*
+node_modules/*
+/packages/wiki/src/serviceWorker.ts
+/packages/wiki/next-env.d.ts

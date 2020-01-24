@@ -4,6 +4,8 @@
   "description": "React Relation Graph",
   "main": "index.js",
   "scripts": {
+    "build": "npm run lib",
+    "lib": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,5 +22,9 @@
   "bugs": {
     "url": "https://github.com/banyudu/react-relation-graph/issues"
   },
-  "homepage": "https://github.com/banyudu/react-relation-graph#readme"
+  "homepage": "https://github.com/banyudu/react-relation-graph#readme",
+  "devDependencies": {
+    "react": "^16.12.0",
+    "typescript": "^3.7.5"
+  }
 }

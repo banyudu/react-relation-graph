@@ -6,7 +6,9 @@
   "scripts": {
     "build": "npm run lib",
     "lib": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "repository": {
     "type": "git",
@@ -24,7 +26,17 @@
   },
   "homepage": "https://github.com/banyudu/react-relation-graph#readme",
   "devDependencies": {
+    "@babel/core": "^7.8.3",
+    "@storybook/addon-actions": "^5.3.9",
+    "@storybook/addon-links": "^5.3.9",
+    "@storybook/addons": "^5.3.9",
+    "@storybook/preset-typescript": "^1.1.0",
+    "@storybook/react": "^5.3.9",
+    "babel-loader": "^8.0.6",
     "react": "^16.12.0",
+    "react-docgen-typescript-loader": "^3.6.0",
+    "ts-loader": "^6.2.1",
     "typescript": "^3.7.5"
-  }
+  },
+  "dependencies": {}
 }

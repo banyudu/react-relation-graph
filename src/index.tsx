@@ -107,7 +107,7 @@ const renderLine = (begin: Node, end: Node, color: string): ReactNode => {
 }
 
 const renderCircle = (node: Node): ReactNode =>
-  <a key={`circle-${node.name}`} onClick={node.onClick}>
+  <a key={`circle-${node.name}`} onClick={node.onClick as any}>
     <circle
       cx={node.x}
       cy={node.y}
@@ -119,7 +119,7 @@ const renderCircle = (node: Node): ReactNode =>
   </a>
 
 const renderTitle = (node: Node): ReactNode =>
-  <a key={`text-${node.name}`} onClick={node.onClick}>
+  <a key={`text-${node.name}`} onClick={node.onClick as any}>
     <text
       x={node.x}
       y={node.y}

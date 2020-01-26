@@ -58,45 +58,40 @@ interface Node {
   bgColor: string
   name: string
   onClick?: (r: Relation) => void
+  relation: Relation
 }
 
-const getNodesByRelations = (relations: Relation[], width: number, height: number, onClick?: RelationOnClickFunc): Node[] => {
+const addSubNodes = (nodes: Node[], relation: Relation): void => {
   // 首先插入根节点
-  const rootNodeRadius = 50
-  const bgColor = getColorByPercent(0)
-  const rootNode: Node = { x: width / 2, y: height / 2, r: rootNodeRadius, bgColor, name: '', color: getReverseColor(bgColor, true) }
-  const result: Node[] = []
-  result.push(rootNode)
+  const rootNode: Node = {
+    x: 0,
+    y: 0,
+    r: 50,
+    name: relation.name,
+    bgColor: '#1890ff',
+    color: '#ffffff',
+    relation
+  }
+  nodes.push(rootNode)
 
-  // 再计算关系节点
-  let max = 0
-  for (const relation of relations) {
-    max = Math.max(max, relation.value)
+  if (relation.relations && relation.relations.length) {
+    for (const item of relation.relations) {
+      addSubNodes(nodes, item)
+    }
   }
-  if (max === 0) {
-    max = 1
+}
+
+const getNodesByRelations = (relations: Relation[], onClick?: RelationOnClickFunc): Node[] => {
+  const nodes: Node[] = []
+  for (const item of relations) {
+    addSubNodes(nodes, item)
   }
-  const factor = (rootNodeRadius - 15) / max
-  for (const relation of relations) {
-    const radius = relation.value * factor + 10
-    const diameter = 2 * radius
-    console.log('relation.value: ', relation.value)
-    const bgColor = getColorByPercent((max - relation.value) / max)
-    result.push({
-      x: Math.random() * (width - diameter) + radius,
-      y: Math.random() * (height - diameter) + radius,
-      r: radius,
-      name: relation.name,
-      bgColor,
-      onClick: () => {
-        if (onClick) {
-          onClick(relation)
-        }
-      },
-      color: getReverseColor(bgColor, true)
-    })
+  if (onClick) {
+    for (const node of nodes) {
+      node.onClick = () => onClick(node.relation)
+    }
   }
-  return result
+  return nodes
 }
 
 const renderLine = (begin: Node, end: Node, color: string): ReactNode => {
@@ -222,10 +217,9 @@ const RelationGraph: React.FC<RelationCanvasProps> = (props: RelationCanvasProps
 
   useEffect(() => {
     // 如果是移动设备，则不存在resize的情况，锁定一次即可
-    let nodes = getNodesByRelations(relations, width, height, onClick)
+    let nodes = getNodesByRelations(relations, onClick)
     nodes = arrangeElasticNodes(nodes, width, height, 100)
     setNodes(nodes)
-    console.log('nodes are: ', nodes)
   }, relations)
 
   return (

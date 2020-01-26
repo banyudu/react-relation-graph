@@ -12,6 +12,7 @@ export const Empty = () => (
     width={100}
     height={100}
     relations={[]}
+    onClick={(relation) => console.log('clicked: ', relation.name)}
   />
 )
 
@@ -26,6 +27,7 @@ export const OneNode = () => (
       bgColor: '#000000',
       relations: []
     }]}
+    onClick={(relation) => console.log('clicked: ', relation.name)}
   />
 )
 
@@ -45,5 +47,6 @@ export const One2One = () => (
         bgColor: '#000000',
       }]
     }]}
+    onClick={(relation) => console.log('clicked: ', relation.name)}
   />
 )

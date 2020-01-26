@@ -4,6 +4,7 @@ const getColorByPercent = (percent: number): string => {
   const startRGB = [0x18, 0x90, 0xff]
   const endRGB = [0xff, 0x00, 0x00]
   const rgb = startRGB.map((start, index) => Math.floor(start + (endRGB[index] - start) * percent))
+  console.log('percent is: ', percent)
   const color = '#' + rgb.map(v => Number(v).toString(16).padStart(2, '0')).join('')
   return color
 }
@@ -72,16 +73,20 @@ const getNodesByRelations = (relations: Relation[], width: number, height: numbe
   for (const relation of relations) {
     max = Math.max(max, relation.value)
   }
+  if (max === 0) {
+    max = 1
+  }
   const factor = (rootNodeRadius - 15) / max
   for (const relation of relations) {
-    const radius = relation[1] * factor + 10
+    const radius = relation.value * factor + 10
     const diameter = 2 * radius
-    const bgColor = getColorByPercent((max - relation[1]) / max)
+    console.log('relation.value: ', relation.value)
+    const bgColor = getColorByPercent((max - relation.value) / max)
     result.push({
       x: Math.random() * (width - diameter) + radius,
       y: Math.random() * (height - diameter) + radius,
       r: radius,
-      name: relation[0],
+      name: relation.name,
       bgColor,
       onClick: () => {
         if (onClick) {
@@ -220,6 +225,7 @@ const RelationGraph: React.FC<RelationCanvasProps> = (props: RelationCanvasProps
     let nodes = getNodesByRelations(relations, width, height, onClick)
     nodes = arrangeElasticNodes(nodes, width, height, 100)
     setNodes(nodes)
+    console.log('nodes are: ', nodes)
   }, relations)
 
   return (

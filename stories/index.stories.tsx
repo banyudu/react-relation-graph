@@ -33,8 +33,8 @@ export const OneNode = () => (
 
 export const One2One = () => (
   <Relations
-    width={800}
-    height={800}
+    width={500}
+    height={500}
     relations={[{
       name: 'Root',
       value: 0,
@@ -48,5 +48,6 @@ export const One2One = () => (
       }]
     }]}
     onClick={(relation) => console.log('clicked: ', relation.name)}
+    bgColor={'grey'}
   />
 )

@@ -138,9 +138,6 @@ const hasDirectRelation = (src: Relation, dest: Relation): boolean => {
 }
 
 const arrangeElasticNodes = (nodes: Node[], width: number, height: number, times: number = 1): Node[] => {
-  if (times <= 0) {
-    return nodes
-  }
   /**
    * 根据弹性重新排布节点
    * 每个节点都会受到三种类型的力；
@@ -167,62 +164,64 @@ const arrangeElasticNodes = (nodes: Node[], width: number, height: number, times
 
   const lineForceFactor = 1
 
-  for (let i = 0; i < nodes.length; i++) {
-    const dest = nodes[i]
-    // fx, fy代表受力，正负数代表不同的方向。正值代表向上移动，负值代表向下移动
-    for (let j = i + 1; j < nodes.length; j++) {
-      const src = nodes[j]
-      const dx = (dest.x - src.x) // x轴差
-      const dy = (dest.y - src.y) // y轴差
-      const lenFactor = dx * dx + dy * dy
-      const len = Math.sqrt(lenFactor)
+  while(times-- >= 0) {
+    for (let i = 0; i < nodes.length; i++) {
+      const dest = nodes[i]
+      // fx, fy代表受力，正负数代表不同的方向。正值代表向上移动，负值代表向下移动
+      for (let j = i + 1; j < nodes.length; j++) {
+        const src = nodes[j]
+        const dx = (dest.x - src.x) // x轴差
+        const dy = (dest.y - src.y) // y轴差
+        const lenFactor = dx * dx + dy * dy
+        const len = Math.sqrt(lenFactor)
 
-      const px = len ? dx / len : 1 // x占百分比
-      const py = len ? dy / len : 1 // y占百分比
+        const px = len ? dx / len : 1 // x占百分比
+        const py = len ? dy / len : 1 // y占百分比
 
-      // 斥力
-      const rx = src.r * dest.r / len * px // tmp fx
-      const ry = src.r * dest.r / len * py // tmp fy
+        // 斥力
+        const rx = src.r * dest.r / len * px // tmp fx
+        const ry = src.r * dest.r / len * py // tmp fy
 
-      let gx = 0
-      let gy = 0
+        let gx = 0
+        let gy = 0
 
-      // 引力
-      if (hasDirectRelation(src.relation, dest.relation)) { // 有中心节点，说明有连接线
-        gx = lineForceFactor * len * px * 0.02
-        gy = lineForceFactor * len * py * 0.02
+        // 引力
+        if (hasDirectRelation(src.relation, dest.relation)) { // 有中心节点，说明有连接线
+          gx = lineForceFactor * len * px * 0.02
+          gy = lineForceFactor * len * py * 0.02
+        }
+        const fx = maxForce(rx - gx) || 0
+        const fy = maxForce(ry - gy) || 0
+
+        force[i][0] += fx
+        force[i][1] += fy
+        force[j][0] -= fx
+        force[j][1] -= fy
       }
-      const fx = maxForce(rx - gx) || 0
-      const fy = maxForce(ry - gy) || 0
-
-      force[i][0] += fx
-      force[i][1] += fy
-      force[j][0] -= fx
-      force[j][1] -= fy
     }
-  }
 
-  // 得到受力情况(force之后)，计算其从运动偏移量。d = 1/2 at^2，其中t可认为是常量，所以 1/2 t^2 视为一个常量C，即 d = C * a
-  // a = f / m
-  const C = 1
-  const newNodes = nodes.map((node, index) => {
-    const result = { ...node }
-    result.x = Math.max(result.r, Math.min(width - result.r, result.x + force[index][0] / result.r * C))
-    result.y = Math.max(result.r, Math.min(height - result.r, result.y + force[index][1] / result.r * C))
-    return result
-  })
-  return arrangeElasticNodes(newNodes, width, height, times - 1)
+    // 得到受力情况(force之后)，计算其从运动偏移量。d = 1/2 at^2，其中t可认为是常量，所以 1/2 t^2 视为一个常量C，即 d = C * a
+    // a = f / m
+    const C = 1
+    nodes = nodes.map((node, index) => {
+      const result = { ...node }
+      result.x = Math.max(result.r, Math.min(width - result.r, result.x + force[index][0] / result.r * C))
+      result.y = Math.max(result.r, Math.min(height - result.r, result.y + force[index][1] / result.r * C))
+      return result
+    })
+  }
+  return nodes
 }
 
 const RelationGraph: React.FC<RelationCanvasProps> = (props: RelationCanvasProps) => {
   const svgRef = React.useRef(null)
   const [nodes, setNodes] = useState<Node[]>([])
-  const { relations, width, height, onClick } = props
+  const { relations, width, height, onClick, bgColor = '#ffffff' } = props
 
   useEffect(() => {
     // 如果是移动设备，则不存在resize的情况，锁定一次即可
     let nodes = getNodesByRelations(relations, onClick)
-    nodes = arrangeElasticNodes(nodes, width, height, 100)
+    nodes = arrangeElasticNodes(nodes, width, height, 10000)
     setNodes(nodes)
   }, relations)
 
@@ -232,6 +231,7 @@ const RelationGraph: React.FC<RelationCanvasProps> = (props: RelationCanvasProps
       width={`${width}px`}
       height={`${height}px`}
       className='relation-svg'
+      style={{backgroundColor: bgColor}}
     >
       {nodes.map(node => renderLine(nodes[0], node, 'black'))}
       {nodes.map(node => renderCircle(node))}

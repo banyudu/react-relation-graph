@@ -9,8 +9,8 @@ export default {
 
 export const Empty = () => (
   <Relations
-    width={100}
-    height={100}
+    width={800}
+    height={800}
     relations={[]}
     onClick={(relation) => console.log('clicked: ', relation.name)}
   />
@@ -18,8 +18,8 @@ export const Empty = () => (
 
 export const OneNode = () => (
   <Relations
-    width={100}
-    height={100}
+    width={800}
+    height={800}
     relations={[{
       name: 'Root',
       value: 0,
@@ -33,8 +33,8 @@ export const OneNode = () => (
 
 export const One2One = () => (
   <Relations
-    width={100}
-    height={100}
+    width={800}
+    height={800}
     relations={[{
       name: 'Root',
       value: 0,

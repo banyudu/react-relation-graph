@@ -133,6 +133,10 @@ const renderTitle = (node: Node): ReactNode =>
 
 const maxForce = (force: number): number => Math.max(-1000, Math.min(1000, force))
 
+const hasDirectRelation = (src: Relation, dest: Relation): boolean => {
+  return (src.relations || []).includes(dest) || (dest.relations || []).includes(src)
+}
+
 const arrangeElasticNodes = (nodes: Node[], width: number, height: number, times: number = 1): Node[] => {
   if (times <= 0) {
     return nodes
@@ -173,8 +177,8 @@ const arrangeElasticNodes = (nodes: Node[], width: number, height: number, times
       const lenFactor = dx * dx + dy * dy
       const len = Math.sqrt(lenFactor)
 
-      const px = dx / len // x占百分比
-      const py = dy / len // y占百分比
+      const px = len ? dx / len : 1 // x占百分比
+      const py = len ? dy / len : 1 // y占百分比
 
       // 斥力
       const rx = src.r * dest.r / len * px // tmp fx
@@ -184,7 +188,7 @@ const arrangeElasticNodes = (nodes: Node[], width: number, height: number, times
       let gy = 0
 
       // 引力
-      if (i === 0) { // 有中心节点，说明有连接线
+      if (hasDirectRelation(src.relation, dest.relation)) { // 有中心节点，说明有连接线
         gx = lineForceFactor * len * px * 0.02
         gy = lineForceFactor * len * py * 0.02
       }

@@ -186,9 +186,10 @@ const arrangeElasticNodes = (nodes: Node[], width: number, height: number, times
         let gy = 0
 
         // 引力
-        if (hasDirectRelation(src.relation, dest.relation)) { // 有中心节点，说明有连接线
-          gx = lineForceFactor * len * px * 0.02
-          gy = lineForceFactor * len * py * 0.02
+        if (hasDirectRelation(src.relation, dest.relation)) { // 有连接线的情况下，需要计算引力
+          const edgeLen = Math.max(0, len - src.r - dest.r)
+          gx = lineForceFactor * edgeLen * px * 0.02
+          gy = lineForceFactor * edgeLen * py * 0.02
         }
         const fx = maxForce(rx - gx) || 0
         const fy = maxForce(ry - gy) || 0
@@ -221,7 +222,7 @@ const RelationGraph: React.FC<RelationCanvasProps> = (props: RelationCanvasProps
   useEffect(() => {
     // 如果是移动设备，则不存在resize的情况，锁定一次即可
     let nodes = getNodesByRelations(relations, onClick)
-    nodes = arrangeElasticNodes(nodes, width, height, 10000)
+    nodes = arrangeElasticNodes(nodes, width, height, 1000)
     setNodes(nodes)
   }, relations)
 

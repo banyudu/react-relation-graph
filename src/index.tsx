@@ -40,6 +40,8 @@ interface Relation {
   relations?: Relation[]
 }
 
+type Force = [number, number]
+
 type RelationOnClickFunc = (r: Relation) => void
 
 interface RelationCanvasProps {
@@ -137,6 +139,53 @@ const hasDirectRelation = (src: Relation, dest: Relation): boolean => {
   return (src.relations || []).includes(dest) || (dest.relations || []).includes(src)
 }
 
+const getForces = (nodes: Node[]): Force[] => {
+  const force: Force[] = nodes.map(_item => [0, 0]) // [number, number] 分别是 x,y 轴的力
+  const lineForceFactor = 1
+
+  for (let i = 0; i < nodes.length; i++) {
+    const dest = nodes[i]
+    // fx, fy代表受力，正负数代表不同的方向。正值代表向上移动，负值代表向下移动
+    for (let j = i + 1; j < nodes.length; j++) {
+      const src = nodes[j]
+      const dx = (dest.x - src.x) // x轴差
+      const dy = (dest.y - src.y) // y轴差
+      const lenFactor = dx * dx + dy * dy
+      const len = Math.sqrt(lenFactor)
+
+      const px = len ? dx / len : 1 // x占百分比
+      const py = len ? dy / len : 1 // y占百分比
+      const edgeLen = Math.max(0, len - src.r - dest.r)
+
+      // 斥力
+      let rx = src.r * dest.r / len * px // tmp fx
+      let ry = src.r * dest.r / len * py // tmp fy
+      if (edgeLen < 0) {
+        // 如果有重叠，将斥力放大
+        rx *= 100
+        ry *= 100
+      }
+
+      let gx = 0
+      let gy = 0
+
+      // 引力
+      if (hasDirectRelation(src.relation, dest.relation)) { // 有连接线的情况下，需要计算引力
+        gx = lineForceFactor * edgeLen * px * 0.02
+        gy = lineForceFactor * edgeLen * py * 0.02
+      }
+      const fx = maxForce(rx - gx) || 0
+      const fy = maxForce(ry - gy) || 0
+
+      force[i][0] += fx
+      force[i][1] += fy
+      force[j][0] -= fx
+      force[j][1] -= fy
+    }
+  }
+  return force
+}
+
 const arrangeElasticNodes = (nodes: Node[], width: number, height: number, times: number = 1): Node[] => {
   /**
    * 根据弹性重新排布节点
@@ -160,54 +209,16 @@ const arrangeElasticNodes = (nodes: Node[], width: number, height: number, times
     return nodes
   }
 
-  const force: Array<[number, number]> = nodes.map(_item => [0, 0]) // [number, number] 分别是 x,y 轴的力
-
-  const lineForceFactor = 1
-
   while(times-- >= 0) {
-    for (let i = 0; i < nodes.length; i++) {
-      const dest = nodes[i]
-      // fx, fy代表受力，正负数代表不同的方向。正值代表向上移动，负值代表向下移动
-      for (let j = i + 1; j < nodes.length; j++) {
-        const src = nodes[j]
-        const dx = (dest.x - src.x) // x轴差
-        const dy = (dest.y - src.y) // y轴差
-        const lenFactor = dx * dx + dy * dy
-        const len = Math.sqrt(lenFactor)
-
-        const px = len ? dx / len : 1 // x占百分比
-        const py = len ? dy / len : 1 // y占百分比
-
-        // 斥力
-        const rx = src.r * dest.r / len * px // tmp fx
-        const ry = src.r * dest.r / len * py // tmp fy
-
-        let gx = 0
-        let gy = 0
-
-        // 引力
-        if (hasDirectRelation(src.relation, dest.relation)) { // 有连接线的情况下，需要计算引力
-          const edgeLen = Math.max(0, len - src.r - dest.r)
-          gx = lineForceFactor * edgeLen * px * 0.02
-          gy = lineForceFactor * edgeLen * py * 0.02
-        }
-        const fx = maxForce(rx - gx) || 0
-        const fy = maxForce(ry - gy) || 0
-
-        force[i][0] += fx
-        force[i][1] += fy
-        force[j][0] -= fx
-        force[j][1] -= fy
-      }
-    }
-
+    const force = getForces(nodes)
     // 得到受力情况(force之后)，计算其从运动偏移量。d = 1/2 at^2，其中t可认为是常量，所以 1/2 t^2 视为一个常量C，即 d = C * a
     // a = f / m
     const C = 1
     nodes = nodes.map((node, index) => {
       const result = { ...node }
-      result.x = Math.max(result.r, Math.min(width - result.r, result.x + force[index][0] / result.r * C))
-      result.y = Math.max(result.r, Math.min(height - result.r, result.y + force[index][1] / result.r * C))
+      // 加上随机数以打破同一直线方向
+      result.x = Math.max(result.r, Math.min(width - result.r, result.x + force[index][0] / result.r * C)) + Math.random()
+      result.y = Math.max(result.r, Math.min(height - result.r, result.y + force[index][1] / result.r * C)) + Math.random()
       return result
     })
   }

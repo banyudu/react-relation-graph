@@ -70,3 +70,44 @@ export const One2Two = () => (
     bgColor={'grey'}
   />
 )
+
+export const One2Three = () => (
+  <Relations
+    width={500}
+    height={500}
+    relations={[{
+      name: 'Root',
+      value: 0,
+      color: '#000000',
+      bgColor: '#121212',
+      relations: [
+        { name: 'Peer1', value: 1, color: '#ff0000', bgColor: '#000000' },
+        { name: 'Peer2', value: 1, color: '#ff0000', bgColor: '#000000' },
+        { name: 'Peer3', value: 1, color: '#ff0000', bgColor: '#000000' }
+      ]
+    }]}
+    onClick={(relation) => console.log('clicked: ', relation.name)}
+    bgColor={'grey'}
+  />
+)
+
+export const One2Four = () => (
+  <Relations
+    width={500}
+    height={500}
+    relations={[{
+      name: 'Root',
+      value: 0,
+      color: '#000000',
+      bgColor: '#121212',
+      relations: [
+        { name: 'Peer1', value: 1, color: '#ff0000', bgColor: '#000000' },
+        { name: 'Peer2', value: 1, color: '#ff0000', bgColor: '#000000' },
+        { name: 'Peer3', value: 1, color: '#ff0000', bgColor: '#000000' },
+        { name: 'Peer4', value: 1, color: '#ff0000', bgColor: '#000000' }
+      ]
+    }]}
+    onClick={(relation) => console.log('clicked: ', relation.name)}
+    bgColor={'grey'}
+  />
+)

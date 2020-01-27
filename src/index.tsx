@@ -64,8 +64,8 @@ interface Node {
 const addSubNodes = (nodes: Node[], relation: Relation): void => {
   // 首先插入根节点
   const rootNode: Node = {
-    x: 0,
-    y: 0,
+    x: Math.random(),
+    y: Math.random(),
     r: 50,
     name: relation.name,
     bgColor: '#1890ff',

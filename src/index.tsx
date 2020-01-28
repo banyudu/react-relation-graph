@@ -1,5 +1,11 @@
 import React, { useState, useEffect, ReactNode, useRef } from 'react'
 
+const MAX_NODE_RADIUS = 30
+const MIN_NODE_RADIUS = 10
+
+const MAX_FONT_SIZE = 16
+const MIN_FONT_SIZE = 10
+
 const getColorByPercent = (percent: number): string => {
   const startRGB = [0x18, 0x90, 0xff]
   const endRGB = [0xff, 0x00, 0x00]
@@ -94,18 +100,16 @@ function useInterval(callback, delay) {
 const addSubNodes = (nodes: Node[], pNode: Node): void => {
   // 首先插入根节点
   pNode.children = pNode.children || []
-  const rootNodeRadius = 50
-  const minRadius = 10
 
   const subRelations = pNode.relation.relations
   if (subRelations && subRelations.length) {
     let maxValue = subRelations.reduce((res, item) => Math.max(res, item.value), 1)
     for (const relation of subRelations) {
-      const factor = Math.sqrt(relation.value / maxValue)
+      const factor = Math.sqrt(relation.value * 0.7 / maxValue)
       const node: Node = {
         x: Math.random() * 1000,
         y: Math.random() * 1000,
-        r: pNode.virtual ? rootNodeRadius : minRadius + (pNode.r - minRadius) * factor,
+        r: pNode.virtual ? MAX_NODE_RADIUS : MIN_NODE_RADIUS + (pNode.r - MIN_NODE_RADIUS) * factor,
         name: relation.name,
         bgColor: relation.bgColor,
         color: relation.color,
@@ -135,7 +139,7 @@ const getNodesByRelations = (relations: Relation[], center: Point, onClick?: Rel
   const virtualNode: Node = {
     x: center.x,
     y: center.y,
-    r: useVirtualRelation ? 0 : 50,
+    r: useVirtualRelation ? 0 : MAX_NODE_RADIUS,
     relation: relation,
     name: relation.name,
     bgColor: relation.bgColor,
@@ -184,6 +188,7 @@ const renderCircle = (node: Node): ReactNode =>
     </circle>
   </a>
 
+// fontsize 跟随 radius 变化。设置最大值为16，最小值为10
 const renderTitle = (node: Node): ReactNode =>
   <a key={`text-${node.name}`} onClick={node.onClick as any}>
     <text
@@ -192,6 +197,7 @@ const renderTitle = (node: Node): ReactNode =>
       dominantBaseline='middle'
       textAnchor='middle'
       fill={node.color}
+      fontSize={MIN_FONT_SIZE + (MAX_FONT_SIZE - MIN_FONT_SIZE) / (MAX_NODE_RADIUS - MIN_NODE_RADIUS) * (node.r - MIN_NODE_RADIUS)}
     >
       {node.name}
     </text>

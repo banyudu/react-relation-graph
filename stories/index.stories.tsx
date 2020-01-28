@@ -114,3 +114,26 @@ export const One2Four = () => (
     debug
   />
 )
+
+export const One2Five = () => (
+  <Relations
+    width={800}
+    height={800}
+    relations={[{
+      name: 'Root',
+      value: 0,
+      color: '#000000',
+      bgColor: 'blue',
+      relations: [
+        { name: 'Peer1', value: 1, color: '#ff0000', bgColor: 'yellow' },
+        { name: 'Peer2', value: 1, color: '#00ff00', bgColor: 'orange' },
+        { name: 'Peer3', value: 1, color: '#0000ff', bgColor: 'purple' },
+        { name: 'Peer4', value: 1, color: '#222222', bgColor: 'darkgreen' },
+        { name: 'Peer5', value: 1, color: '#222222', bgColor: 'pink' }
+      ]
+    }]}
+    onClick={(relation) => console.log('clicked: ', relation.name)}
+    bgColor={'grey'}
+    debug
+  />
+)

@@ -245,7 +245,7 @@ const hasDirectRelation = (src: Relation, dest: Relation): boolean => {
 
 const getForces = (nodes: Node[]): Force[] => {
   const force: Force[] = nodes.map(_item => [0, 0]) // [number, number] 分别是 x,y 轴的力
-  const lineForceFactor = 1
+  const lineForceFactor = 8
 
   for (let i = 0; i < nodes.length; i++) {
     const dest = nodes[i]

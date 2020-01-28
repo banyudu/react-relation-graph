@@ -2,7 +2,7 @@
   "name": "react-relation-graph",
   "version": "0.0.1",
   "description": "React Relation Graph",
-  "main": "index.js",
+  "main": "dist/src/index.js",
   "scripts": {
     "build": "npm run lib",
     "lib": "tsc",
@@ -18,6 +18,11 @@
     "relation",
     "react",
     "graph"
+  ],
+  "files": [
+    "README.md",
+    "package.json",
+    "dist/src"
   ],
   "author": "Yudu Ban <banyudu@gmail.com>",
   "license": "MIT",

@@ -24,7 +24,7 @@ export const OneNode = () => (
       name: 'Root',
       value: 0,
       color: '#00FFFF',
-      bgColor: '#000000',
+      bgColor: '#1890ff',
       relations: []
     }]}
     onClick={(relation) => console.log('clicked: ', relation.name)}
@@ -39,16 +39,17 @@ export const One2One = () => (
       name: 'Root',
       value: 0,
       color: '#000000',
-      bgColor: '#121212',
+      bgColor: 'blue',
       relations: [{
         name: 'Peer',
         value: 1,
         color: '#ff0000',
-        bgColor: '#000000',
+        bgColor: '#1890ff',
       }]
     }]}
     onClick={(relation) => console.log('clicked: ', relation.name)}
     bgColor={'grey'}
+    debug
   />
 )
 
@@ -60,14 +61,15 @@ export const One2Two = () => (
       name: 'Root',
       value: 0,
       color: '#000000',
-      bgColor: '#121212',
+      bgColor: 'blue',
       relations: [
-        { name: 'Peer1', value: 1, color: '#ff0000', bgColor: '#000000' },
-        { name: 'Peer2', value: 1, color: '#ff0000', bgColor: '#000000' }
+        { name: 'Peer1', value: 1, color: '#ff0000', bgColor: '#1890ff' },
+        { name: 'Peer2', value: 1, color: '#ff0000', bgColor: '#1890ff' }
       ]
     }]}
     onClick={(relation) => console.log('clicked: ', relation.name)}
     bgColor={'grey'}
+    debug
   />
 )
 
@@ -79,11 +81,11 @@ export const One2Three = () => (
       name: 'Root',
       value: 0,
       color: '#000000',
-      bgColor: '#121212',
+      bgColor: 'blue',
       relations: [
-        { name: 'Peer1', value: 1, color: '#ff0000', bgColor: '#000000' },
-        { name: 'Peer2', value: 1, color: '#ff0000', bgColor: '#000000' },
-        { name: 'Peer3', value: 1, color: '#ff0000', bgColor: '#000000' }
+        { name: 'Peer1', value: 1, color: '#ff0000', bgColor: '#1890ff' },
+        { name: 'Peer2', value: 1, color: '#ff0000', bgColor: '#1890ff' },
+        { name: 'Peer3', value: 1, color: '#ff0000', bgColor: '#1890ff' }
       ]
     }]}
     onClick={(relation) => console.log('clicked: ', relation.name)}
@@ -99,15 +101,16 @@ export const One2Four = () => (
       name: 'Root',
       value: 0,
       color: '#000000',
-      bgColor: '#121212',
+      bgColor: 'blue',
       relations: [
-        { name: 'Peer1', value: 1, color: '#ff0000', bgColor: '#000000' },
-        { name: 'Peer2', value: 1, color: '#ff0000', bgColor: '#000000' },
-        { name: 'Peer3', value: 1, color: '#ff0000', bgColor: '#000000' },
-        { name: 'Peer4', value: 1, color: '#ff0000', bgColor: '#000000' }
+        { name: 'Peer1', value: 1, color: '#ff0000', bgColor: 'yellow' },
+        { name: 'Peer2', value: 1, color: '#00ff00', bgColor: 'orange' },
+        { name: 'Peer3', value: 1, color: '#0000ff', bgColor: 'purple' },
+        { name: 'Peer4', value: 1, color: '#222222', bgColor: 'darkgreen' }
       ]
     }]}
     onClick={(relation) => console.log('clicked: ', relation.name)}
     bgColor={'grey'}
+    debug
   />
 )

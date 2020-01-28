@@ -1,10 +1,9 @@
-import React, { useState, useEffect, ReactNode } from 'react'
+import React, { useState, useEffect, ReactNode, useRef } from 'react'
 
 const getColorByPercent = (percent: number): string => {
   const startRGB = [0x18, 0x90, 0xff]
   const endRGB = [0xff, 0x00, 0x00]
   const rgb = startRGB.map((start, index) => Math.floor(start + (endRGB[index] - start) * percent))
-  console.log('percent is: ', percent)
   const color = '#' + rgb.map(v => Number(v).toString(16).padStart(2, '0')).join('')
   return color
 }
@@ -32,6 +31,11 @@ const getReverseColor = (hex: string, bw: boolean): string => {
   return [r, g, b].reduce((res, item) => res + (255 - item).toString(16).padStart(2, '0'), '#')
 }
 
+interface Point {
+  x: number
+  y: number
+}
+
 interface Relation {
   name: string
   value: number
@@ -50,44 +54,93 @@ interface RelationCanvasProps {
   bgColor?: string
   relations: Relation[]
   onClick?: RelationOnClickFunc
+  debug?: boolean
 }
 
 interface Node {
   x: number
   y: number
   r: number // radius
-  color: string
-  bgColor: string
+  color?: string
+  bgColor?: string
   name: string
   onClick?: (r: Relation) => void
   relation: Relation
+  fixed?: boolean
+  virtual?: boolean
+  children?: Node[]
 }
 
-const addSubNodes = (nodes: Node[], relation: Relation): void => {
-  // 首先插入根节点
-  const rootNode: Node = {
-    x: Math.random(),
-    y: Math.random(),
-    r: 50,
-    name: relation.name,
-    bgColor: '#1890ff',
-    color: '#ffffff',
-    relation
-  }
-  nodes.push(rootNode)
+function useInterval(callback, delay) {
+  const savedCallback = useRef<Function>(callback)
 
-  if (relation.relations && relation.relations.length) {
-    for (const item of relation.relations) {
-      addSubNodes(nodes, item)
+  // 保存新回调
+  useEffect(() => {
+    savedCallback.current = callback;
+  });
+
+  // 建立 interval
+  useEffect(() => {
+    function tick() {
+      savedCallback.current()
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
+}
+
+const addSubNodes = (nodes: Node[], pNode: Node): void => {
+  // 首先插入根节点
+  pNode.children = pNode.children || []
+
+  const subRelations = pNode.relation.relations
+  if (subRelations && subRelations.length) {
+    for (const relation of subRelations) {
+      const node: Node = {
+        x: Math.random() * 1000,
+        y: Math.random() * 1000,
+        r: 50,
+        name: relation.name,
+        bgColor: relation.bgColor,
+        color: relation.color,
+        relation
+      }
+      nodes.push(node)
+      pNode.children.push(node)
+      addSubNodes(nodes, node)
     }
   }
 }
 
-const getNodesByRelations = (relations: Relation[], onClick?: RelationOnClickFunc): Node[] => {
+const formatNumber = val => Math.round(val * 100) / 100
+
+const getNodesByRelations = (relations: Relation[], center: Point, onClick?: RelationOnClickFunc): Node[] => {
+  // 加入虚拟关系，使root节点尽量靠近中央节点
   const nodes: Node[] = []
-  for (const item of relations) {
-    addSubNodes(nodes, item)
+  const useVirtualRelation = relations.length !== 1
+  let relation: Relation = {
+    name: '',
+    value: 0,
+    relations
   }
+  if (!useVirtualRelation) {
+    relation = relations[0]
+  }
+  const virtualNode: Node = {
+    x: center.x,
+    y: center.y,
+    r: useVirtualRelation ? 0 : 50,
+    relation: relation,
+    name: relation.name,
+    bgColor: relation.bgColor,
+    color: relation.color,
+    fixed: true,
+    virtual: useVirtualRelation
+  }
+  nodes.push(virtualNode)
+  addSubNodes(nodes, virtualNode)
   if (onClick) {
     for (const node of nodes) {
       node.onClick = () => onClick(node.relation)
@@ -106,6 +159,13 @@ const renderLine = (begin: Node, end: Node, color: string): ReactNode => {
   const y1 = begin.y - (begin.r / len) * yDiff
   const y2 = end.y + (end.r / len) * yDiff
   return <line key={end.name} {...{ x1, x2, y1, y2 }} stroke='black' />
+}
+
+const renderLines = (node: Node, color: string): ReactNode => {
+  if (node.virtual || !node.children || !node.children.length) {
+    return ''
+  }
+  return <g key={`lines-${node.name}`}>{node.children.map(child => renderLine(node, child, color))}</g>
 }
 
 const renderCircle = (node: Node): ReactNode =>
@@ -132,6 +192,50 @@ const renderTitle = (node: Node): ReactNode =>
       {node.name}
     </text>
   </a>
+
+const renderForce = (node: Node, force: Force = [0, 0]): ReactNode => {
+  if (node.virtual) {
+    return ''
+  }
+  let xLine; let xArrow; let yLine; let yArrow; let xLabel; let yLabel
+  const arrowSize = 3
+  const xForce = force[0]
+  const yForce = force[1]
+  if (xForce) { // x force is not zero
+    const x2 = xForce > 0 ? node.x + node.r : node.x - node.r
+    xLine = <line stroke='red' x1={node.x} x2={x2} y1={node.y} y2={node.y} />
+    const xOffset = xForce > 0 ? -arrowSize : arrowSize
+    const xArrowPoints = [
+      [x2 + xOffset, node.y + arrowSize].join(','),
+      [x2, node.y].join(','),
+      [x2 + xOffset, node.y - arrowSize].join(','),
+    ].join(' ')
+    xArrow = <polyline stroke='red' points={xArrowPoints} />
+    xLabel = <text x={x2} y={node.y} dominantBaseline='middle' textAnchor='middle' fill={node.color}>{formatNumber(xForce)}</text>
+  }
+
+  if (yForce) { // y force is not zero
+    const y2 = yForce > 0 ? node.y + node.r : node.y - node.r
+    yLine = <line stroke='red' x1={node.x} x2={node.x} y1={node.y} y2={y2} />
+    const yOffset = yForce > 0 ? -arrowSize : arrowSize
+    const yArrowPoints = [
+      [node.x - arrowSize, y2 + yOffset].join(','),
+      [node.x, y2].join(','),
+      [node.x + arrowSize, y2 + yOffset].join(','),
+    ].join(' ')
+    yArrow = <polyline stroke='red' points={yArrowPoints} />
+    yLabel = <text x={node.x} y={y2} dominantBaseline='middle' textAnchor='middle' fill={node.color}>{formatNumber(yForce)}</text>
+  }
+
+  return <g key={`force-${node.name}`}>
+    {xLine}
+    {yLine}
+    {xArrow}
+    {yArrow}
+    {xLabel}
+    {yLabel}
+  </g>
+}
 
 const maxForce = (force: number): number => Math.max(-1000, Math.min(1000, force))
 
@@ -160,11 +264,11 @@ const getForces = (nodes: Node[]): Force[] => {
       // 斥力
       let rx = src.r * dest.r / len * px // tmp fx
       let ry = src.r * dest.r / len * py // tmp fy
-      if (edgeLen < 0) {
-        // 如果有重叠，将斥力放大
-        rx *= 100
-        ry *= 100
-      }
+      // if (edgeLen < 0) {
+      //   // 如果有重叠，将斥力放大
+      //   rx *= 100
+      //   ry *= 100
+      // }
 
       let gx = 0
       let gy = 0
@@ -183,10 +287,12 @@ const getForces = (nodes: Node[]): Force[] => {
       force[j][1] -= fy
     }
   }
-  return force
+  return force.map(item => [formatNumber(item[0]), formatNumber(item[1])])
 }
 
-const arrangeElasticNodes = (nodes: Node[], width: number, height: number, times: number = 1): Node[] => {
+const getDiff = diff => Math.max(-5, Math.min(5, diff))
+
+const arrangeElasticNodes = (nodes: Node[], width: number, height: number, times: number = 2000): Node[] => {
   /**
    * 根据弹性重新排布节点
    * 每个节点都会受到三种类型的力；
@@ -209,46 +315,76 @@ const arrangeElasticNodes = (nodes: Node[], width: number, height: number, times
     return nodes
   }
 
-  while(times-- >= 0) {
+  while(times-- > 0) {
     const force = getForces(nodes)
     // 得到受力情况(force之后)，计算其从运动偏移量。d = 1/2 at^2，其中t可认为是常量，所以 1/2 t^2 视为一个常量C，即 d = C * a
     // a = f / m
+
     const C = 1
     nodes = nodes.map((node, index) => {
-      const result = { ...node }
+      if (node.fixed) {
+        return node
+      }
       // 加上随机数以打破同一直线方向
-      result.x = Math.max(result.r, Math.min(width - result.r, result.x + force[index][0] / result.r * C)) + Math.random()
-      result.y = Math.max(result.r, Math.min(height - result.r, result.y + force[index][1] / result.r * C)) + Math.random()
-      return result
+      const m = node.r // 重量认为是r
+      // 修订：运动幅度可能会过大，导致来回振荡。应限制其单位移动距离
+      const xDiff = getDiff(C * force[index][0] / m)
+      const yDiff = getDiff(C * force[index][1] / m)
+      if (Math.abs(force[index][0]) < 1 && Math.abs(force[index][1]) < 1) {
+        node.fixed = true
+      }
+
+      node.x = Math.max(node.r, Math.min(width - node.r, node.x + xDiff))
+      node.y = Math.max(node.r, Math.min(height - node.r, node.y + yDiff))
+      // console.log('diff: ', [xDiff, yDiff].join(','))
+      // console.log('result: ', [result.x, result.y].join(','))
+      return node
     })
   }
   return nodes
 }
 
 const RelationGraph: React.FC<RelationCanvasProps> = (props: RelationCanvasProps) => {
+  const { relations, width, height, onClick, bgColor = '#ffffff', debug } = props
   const svgRef = React.useRef(null)
   const [nodes, setNodes] = useState<Node[]>([])
-  const { relations, width, height, onClick, bgColor = '#ffffff' } = props
+  const [forces, setForces] = useState<Force[]>([])
+  const [isRunning, setIsRunning] = useState<boolean>(true)
 
   useEffect(() => {
-    // 如果是移动设备，则不存在resize的情况，锁定一次即可
-    let nodes = getNodesByRelations(relations, onClick)
-    nodes = arrangeElasticNodes(nodes, width, height, 1000)
-    setNodes(nodes)
+    let newNodes = getNodesByRelations(relations, { x: width / 2, y: height / 2 }, onClick)
+    newNodes = arrangeElasticNodes(newNodes, width, height)
+    setNodes(newNodes)
   }, relations)
 
+  useEffect(() => {
+    setForces(getForces(nodes))
+  }, [nodes])
+
+  const reSort = () => {
+    setNodes(arrangeElasticNodes(nodes, width, height))
+  }
+
+  if (debug) {
+    useInterval(reSort, isRunning ? 200: null)
+  }
+
   return (
-    <svg
-      ref={svgRef}
-      width={`${width}px`}
-      height={`${height}px`}
-      className='relation-svg'
-      style={{backgroundColor: bgColor}}
-    >
-      {nodes.map(node => renderLine(nodes[0], node, 'black'))}
-      {nodes.map(node => renderCircle(node))}
-      {nodes.map(node => renderTitle(node))}
-    </svg>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      {debug && <button style={{ width: '60px' }} onClick={() => {setIsRunning(!isRunning)}}>{isRunning ? 'Pause' : 'Resume'}</button> }
+      <svg
+        ref={svgRef}
+        width={`${width}px`}
+        height={`${height}px`}
+        className='relation-svg'
+        style={{backgroundColor: bgColor}}
+      >
+        {nodes.map(node => renderLines(node, 'black'))}
+        {nodes.map(node => renderCircle(node))}
+        {nodes.map(node => renderTitle(node))}
+        {debug && nodes.map((node, index) => renderForce(node, forces[index]))}
+      </svg>
+    </div>
   )
 }
 

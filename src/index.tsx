@@ -94,14 +94,18 @@ function useInterval(callback, delay) {
 const addSubNodes = (nodes: Node[], pNode: Node): void => {
   // 首先插入根节点
   pNode.children = pNode.children || []
+  const rootNodeRadius = 50
+  const minRadius = 10
 
   const subRelations = pNode.relation.relations
   if (subRelations && subRelations.length) {
+    let maxValue = subRelations.reduce((res, item) => Math.max(res, item.value), 1)
     for (const relation of subRelations) {
+      const factor = Math.sqrt(relation.value / maxValue)
       const node: Node = {
         x: Math.random() * 1000,
         y: Math.random() * 1000,
-        r: 50,
+        r: pNode.virtual ? rootNodeRadius : minRadius + (pNode.r - minRadius) * factor,
         name: relation.name,
         bgColor: relation.bgColor,
         color: relation.color,

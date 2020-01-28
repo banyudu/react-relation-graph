@@ -104,9 +104,9 @@ export const One2Four = () => (
       bgColor: 'blue',
       relations: [
         { name: 'Peer1', value: 1, color: '#ff0000', bgColor: 'yellow' },
-        { name: 'Peer2', value: 1, color: '#00ff00', bgColor: 'orange' },
-        { name: 'Peer3', value: 1, color: '#0000ff', bgColor: 'purple' },
-        { name: 'Peer4', value: 1, color: '#222222', bgColor: 'darkgreen' }
+        { name: 'Peer2', value: 3, color: '#00ff00', bgColor: 'orange' },
+        { name: 'Peer3', value: 2, color: '#0000ff', bgColor: 'purple' },
+        { name: 'Peer4', value: 4, color: '#222222', bgColor: 'darkgreen' }
       ]
     }]}
     onClick={(relation) => console.log('clicked: ', relation.name)}
@@ -125,10 +125,10 @@ export const One2Five = () => (
       color: '#000000',
       bgColor: 'blue',
       relations: [
-        { name: 'Peer1', value: 1, color: '#ff0000', bgColor: 'yellow' },
-        { name: 'Peer2', value: 1, color: '#00ff00', bgColor: 'orange' },
-        { name: 'Peer3', value: 1, color: '#0000ff', bgColor: 'purple' },
-        { name: 'Peer4', value: 1, color: '#222222', bgColor: 'darkgreen' },
+        { name: 'Peer1', value: 10, color: '#ff0000', bgColor: 'yellow' },
+        { name: 'Peer2', value: 8, color: '#00ff00', bgColor: 'orange' },
+        { name: 'Peer3', value: 5, color: '#0000ff', bgColor: 'purple' },
+        { name: 'Peer4', value: 3, color: '#222222', bgColor: 'darkgreen' },
         { name: 'Peer5', value: 1, color: '#222222', bgColor: 'pink' }
       ]
     }]}

@@ -13,7 +13,7 @@ interface Point {
   y: number
 }
 
-interface Relation {
+export interface Relation {
   name: string
   value: number
   color?: string

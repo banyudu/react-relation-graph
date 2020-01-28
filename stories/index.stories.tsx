@@ -48,7 +48,7 @@ export const One2One = () => (
       }]
     }]}
     onClick={(relation) => console.log('clicked: ', relation.name)}
-    bgColor={'grey'}
+    bgColor='#E5E7E9'
     debug
   />
 )
@@ -68,7 +68,7 @@ export const One2Two = () => (
       ]
     }]}
     onClick={(relation) => console.log('clicked: ', relation.name)}
-    bgColor={'grey'}
+    bgColor='#E5E7E9'
     debug
   />
 )
@@ -80,16 +80,14 @@ export const One2Three = () => (
     relations={[{
       name: 'Root',
       value: 0,
-      color: '#000000',
-      bgColor: 'blue',
       relations: [
-        { name: 'Peer1', value: 1, color: '#ff0000', bgColor: '#1890ff' },
-        { name: 'Peer2', value: 1, color: '#ff0000', bgColor: '#1890ff' },
-        { name: 'Peer3', value: 1, color: '#ff0000', bgColor: '#1890ff' }
+        { name: 'Peer1', value: 1 },
+        { name: 'Peer2', value: 1 },
+        { name: 'Peer3', value: 1 }
       ]
     }]}
     onClick={(relation) => console.log('clicked: ', relation.name)}
-    bgColor={'grey'}
+    // bgColor='#E5E7E9'
   />
 )
 
@@ -110,7 +108,7 @@ export const One2Four = () => (
       ]
     }]}
     onClick={(relation) => console.log('clicked: ', relation.name)}
-    bgColor={'grey'}
+    bgColor='#E5E7E9'
     debug
   />
 )
@@ -133,7 +131,7 @@ export const One2Five = () => (
       ]
     }]}
     onClick={(relation) => console.log('clicked: ', relation.name)}
-    bgColor={'grey'}
+    bgColor='#E5E7E9'
     debug
   />
 )
@@ -173,6 +171,6 @@ export const SubRelations = () => (
       ]
     }]}
     onClick={(relation) => console.log('clicked: ', relation.name)}
-    bgColor={'grey'}
+    bgColor='#E5E7E9'
   />
 )

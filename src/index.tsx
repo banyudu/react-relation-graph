@@ -25,7 +25,7 @@ type Force = [number, number]
 
 type RelationOnClickFunc = (r: Relation) => void
 
-interface RelationCanvasProps {
+export interface RelationCanvasProps {
   width: number
   height: number
   bgColor?: string

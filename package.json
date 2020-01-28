@@ -3,10 +3,13 @@
   "version": "0.0.1",
   "description": "React Relation Graph",
   "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "scripts": {
     "build": "npm run lib",
     "lib": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "postversion": "git push --follow-tags && npm publish",
+    "prepublishOnly": "npm run build",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },

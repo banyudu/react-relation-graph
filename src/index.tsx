@@ -32,6 +32,7 @@ export interface RelationCanvasProps {
   relations: Relation[]
   onClick?: RelationOnClickFunc
   debug?: boolean
+  className?: string
 }
 
 interface Node {
@@ -326,7 +327,7 @@ const arrangeElasticNodes = (nodes: Node[], width: number, height: number, times
 }
 
 const RelationGraph: React.FC<RelationCanvasProps> = (props: RelationCanvasProps) => {
-  const { relations, width, height, onClick, bgColor = '#ffffff', debug } = props
+  const { relations, width, height, onClick, bgColor = '#ffffff', debug, className = '' } = props
   const svgRef = React.useRef(null)
   const [nodes, setNodes] = useState<Node[]>([])
   const [forces, setForces] = useState<Force[]>([])
@@ -357,7 +358,7 @@ const RelationGraph: React.FC<RelationCanvasProps> = (props: RelationCanvasProps
         ref={svgRef}
         width={`${width}px`}
         height={`${height}px`}
-        className='relation-svg'
+        className={`${className} relation-svg`}
         style={{backgroundColor: bgColor}}
       >
         {nodes.map(node => renderLines(node, 'black'))}

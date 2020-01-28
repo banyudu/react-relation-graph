@@ -337,7 +337,7 @@ const RelationGraph: React.FC<RelationCanvasProps> = (props: RelationCanvasProps
     let newNodes = getNodesByRelations(relations, { x: width / 2, y: height / 2 }, onClick)
     newNodes = arrangeElasticNodes(newNodes, width, height)
     setNodes(newNodes)
-  }, relations)
+  }, [relations])
 
   useEffect(() => {
     setForces(getForces(nodes))

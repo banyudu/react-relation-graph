@@ -352,7 +352,7 @@ const RelationGraph: React.FC<RelationCanvasProps> = (props: RelationCanvasProps
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {debug && <button style={{ width: '60px' }} onClick={() => {setIsRunning(!isRunning)}}>{isRunning ? 'Pause' : 'Resume'}</button> }
       <svg
         ref={svgRef}

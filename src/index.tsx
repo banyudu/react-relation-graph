@@ -138,7 +138,7 @@ const renderLine = (begin: Node, end: Node, color: string): ReactNode => {
   const x2 = end.x + (end.r / len) * xDiff
   const y1 = begin.y - (begin.r / len) * yDiff
   const y2 = end.y + (end.r / len) * yDiff
-  return <line key={end.name} {...{ x1, x2, y1, y2 }} stroke='black' stroke-opacity='0.7' />
+  return <line key={end.name} {...{ x1, x2, y1, y2 }} stroke='black' strokeOpacity='0.7' />
 }
 
 const renderLines = (node: Node, color: string): ReactNode => {
